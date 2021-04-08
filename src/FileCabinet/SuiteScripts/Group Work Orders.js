@@ -216,11 +216,14 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 newchildworkworder.setValue("assemblyitem", itemid);
                 newchildworkworder.setValue("subsidiary", "2");
                 newchildworkworder.setValue("location", "5");
-                newchildworkworder.setValue("quantity", qty);
+                // newchildworkworder.setValue("quantity", qty);
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
                 var newchildworkworderid = newchildworkworder.save()
                 log.debug("newchildworkworderid",newchildworkworderid)
+                record.submitFields({type: 'workorder',id: newchildworkworderid,
+                    values: {quantity:qty}})
                 rec.setValue("custbodyformulaworkorder", newchildworkworderid)
+
                 // rec.save()
 
             }
