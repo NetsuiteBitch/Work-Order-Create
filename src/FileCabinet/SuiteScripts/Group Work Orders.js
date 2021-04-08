@@ -21,6 +21,18 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
         const beforeLoad = (scriptContext) => {
             var rec = scriptContext.newRecord
             var woid = rec.getValue('id')
+
+            var hasformulawo = rec.getValue('custbodyformulaworkorder')
+
+            if (hasformulawo == ""){
+
+                var formulaworkorderfield = scriptContext.form.getField({id:'custbodyformulaworkorder'});
+                // formulaworkorderfield.isDisplay = false
+                formulaworkorderfield.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.HIDDEN
+                });
+            }
+
             if (woid == ""){
                 return
             }
@@ -44,6 +56,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             if (searchResultCount > 0){
                 log.debug(searchResultCount)
                 var currentform = scriptContext.form
+
                 var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.EDITOR,label:"Parent Work Orders"})
                 parentsublist.addField({id:'parentwoname', label: 'Work Order',type: serverWidget.FieldType.SELECT, source: 'transaction'})
 
