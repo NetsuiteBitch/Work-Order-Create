@@ -42,16 +42,18 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             var searchResultCount = workorderSearchObj.runPaged().count;
 
             if (searchResultCount > 0){
+                var count = 0
                 log.debug(searchResultCount)
                 var currentform = scriptContext.form
-                var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.LIST,label:"Parent Work Orders"})
+                var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.EDITOR,label:"Parent Work Orders"})
                 parentsublist.addField({id:'parentwoname', label: 'Work Order',type: serverWidget.FieldType.SELECT, source: 'transaction'})
 
                 var resultset = workorderSearchObj.run();
-                var results = resultset.getRange(0, 1);
+                var results = resultset.getRange(0, searchResultCount);
                 for(var i in results){
                     var result = results[i];
                     for(var k in result.columns){
+                        log.debug("trying to add",result.getValue(result.columns[k]))
                         addtoparentwosublist(result.getValue(result.columns[k]), parentsublist, i);
                     }
                 }
@@ -59,7 +61,9 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
             function addtoparentwosublist(parentwoid, parentsublist, i){
                 log.debug("will add to sublist", parentwoid)
-                parentsublist.setSublistValue({id: 'parentwoname',line: i,value:parentwoid})
+                log.debug("At", count)
+                parentsublist.setSublistValue({id: 'parentwoname',line: count,value:parentwoid})
+                count++
             }
         }
 
