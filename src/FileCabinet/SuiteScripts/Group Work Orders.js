@@ -42,7 +42,6 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             var searchResultCount = workorderSearchObj.runPaged().count;
 
             if (searchResultCount > 0){
-                var count = 0
                 log.debug(searchResultCount)
                 var currentform = scriptContext.form
                 var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.EDITOR,label:"Parent Work Orders"})
@@ -61,9 +60,8 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
             function addtoparentwosublist(parentwoid, parentsublist, i){
                 log.debug("will add to sublist", parentwoid)
-                log.debug("At", count)
-                parentsublist.setSublistValue({id: 'parentwoname',line: count,value:parentwoid})
-                count++
+                log.debug("typei",typeof(i))
+                parentsublist.setSublistValue({id: 'parentwoname',line: parseInt(i),value:parentwoid})
             }
         }
 
@@ -89,8 +87,16 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     line: i
                 });
 
+                var itemsource = rec.getSublistValue({
+                    sublistId: 'item',
+                    fieldId: 'itemsource',
+                    line: i
+                });
 
-                if (itemtype == 'Assembly'){
+                log.debug(itemsource,itemtype)
+
+
+                if (itemtype == 'Assembly' && itemsource == "STOCK"){
 
                     var itemid = rec.getSublistValue({
                         sublistId: 'item',
