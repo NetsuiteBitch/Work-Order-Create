@@ -36,7 +36,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     ],
                 columns:
                     [
-                        search.createColumn({name: "tranid", label: "Document Number"})
+                        search.createColumn({name: "internalid", label: "Internal ID"})
                     ]
             });
             var searchResultCount = workorderSearchObj.runPaged().count;
@@ -59,7 +59,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
             function addtoparentwosublist(parentwoid, parentsublist, i){
                 log.debug("will add to sublist", parentwoid)
-                // parentsublist.setSublistValue({id: 'parentwoname',line: i,value:parentwoid})
+                parentsublist.setSublistValue({id: 'parentwoname',line: i,value:parentwoid})
             }
         }
 
