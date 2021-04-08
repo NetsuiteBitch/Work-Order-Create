@@ -84,6 +84,15 @@
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
         <field>
+          <id>[scriptid=custbodyformulaworkorder]</id>
+          <label>Formula Work Order</label>
+          <visible>T</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
           <id>REVISIONMEMO</id>
           <label>Revision Memo</label>
           <visible>F</visible>
@@ -860,9 +869,18 @@
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
         <field>
-          <id>[scriptid=custbodyformulaworkorder]</id>
-          <label>Formula Work Order</label>
-          <visible>T</visible>
+          <id>[scriptid=custbody4]</id>
+          <label>Shipper's No</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody2]</id>
+          <label>Reversal Journal Entry</label>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -1632,6 +1650,16 @@
               <columnBreak>F</columnBreak>
               <sameRowAsPrevious>F</sameRowAsPrevious>
             </field>
+            <field>
+              <id>[scriptid=custbody3]</id>
+              <label>23 Mileed</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
           </fields>
         </defaultFieldGroup>
       </fieldGroups>
@@ -2376,15 +2404,6 @@
             </field>
           </fields>
         </defaultFieldGroup>
-      </fieldGroups>
-      <subItems/>
-    </tab>
-    <tab>
-      <id>[scriptid=custtabsowordertab]</id>
-      <label>Source Work Orders</label>
-      <visible>T</visible>
-      <fieldGroups>
-        <defaultFieldGroup/>
       </fieldGroups>
       <subItems/>
     </tab>

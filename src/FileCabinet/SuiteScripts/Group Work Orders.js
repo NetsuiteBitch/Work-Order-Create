@@ -76,6 +76,12 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
         const beforeSubmit = (scriptContext) => {
 
             var rec = scriptContext.newRecord
+            var woid = rec.getValue('id')
+
+            if (woid != ""){
+                log.debug("not new item")
+                return
+            }
 
             var itemlinecount = rec.getLineCount({sublistId:"item"});
 
