@@ -2,13 +2,13 @@
  * @NApiVersion 2.1
  * @NScriptType UserEventScript
  */
-define(['N/record', 'N/search', 'N/transaction','N/log'],
+define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
     /**
  * @param{record} record
  * @param{search} search
  * @param{transaction} transaction
  */
-    (record, search, transaction,log) => {
+    (record, search, transaction,log, serverWidget) => {
         /**
          * Defines the function definition that is executed before record is loaded.
          * @param {Object} scriptContext
@@ -21,8 +21,11 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
         const beforeLoad = (scriptContext) => {
             var rec = scriptContext.newRecord
             var woid = rec.getValue('id')
+            if (woid == ""){
+                return
+            }
             var workorderSearchObj = search.create({
-                type: "workorder",
+                    type: "workorder",
                 filters:
                     [
                         ["type","anyof","WorkOrd"],
@@ -40,6 +43,23 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
 
             if (searchResultCount > 0){
                 log.debug(searchResultCount)
+                var currentform = scriptContext.form
+                var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.LIST,label:"Parent Work Orders"})
+                parentsublist.addField({id:'parentwoname', label: 'Work Order',type: serverWidget.FieldType.SELECT, source: 'transaction'})
+
+                var resultset = workorderSearchObj.run();
+                var results = resultset.getRange(0, 1);
+                for(var i in results){
+                    var result = results[i];
+                    for(var k in result.columns){
+                        addtoparentwosublist(result.getValue(result.columns[k]), parentsublist, i);
+                    }
+                }
+            }
+
+            function addtoparentwosublist(parentwoid, parentsublist, i){
+                log.debug("will add to sublist", parentwoid)
+                // parentsublist.setSublistValue({id: 'parentwoname',line: i,value:parentwoid})
             }
         }
 
