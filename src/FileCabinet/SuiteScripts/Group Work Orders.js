@@ -19,7 +19,28 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
          * @since 2015.2
          */
         const beforeLoad = (scriptContext) => {
+            var rec = scriptContext.newRecord
+            var woid = rec.getValue('id')
+            var workorderSearchObj = search.create({
+                type: "workorder",
+                filters:
+                    [
+                        ["type","anyof","WorkOrd"],
+                        "AND",
+                        ["custbodyformulaworkorder","anyof",woid],
+                        "AND",
+                        ["mainline","is","T"]
+                    ],
+                columns:
+                    [
+                        search.createColumn({name: "tranid", label: "Document Number"})
+                    ]
+            });
+            var searchResultCount = workorderSearchObj.runPaged().count;
 
+            if (searchResultCount > 0){
+                log.debug(searchResultCount)
+            }
         }
 
         /**
@@ -148,8 +169,8 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
                 newchildworkworder.setValue("location", "5");
                 newchildworkworder.setValue("quantity", qty);
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
-                newchildworkworder.save()
-                var newchildworkworderid = newchildworkworder.getValue('id')
+                var newchildworkworderid = newchildworkworder.save()
+                log.debug("newchildworkworderid",newchildworkworderid)
                 rec.setValue("custbodyformulaworkorder", newchildworkworderid)
                 // rec.save()
 
@@ -172,6 +193,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
                 oldchildworkworder.save()
 
                 var oldchildworkworderid = oldchildworkworder.getValue('id')
+                log.debug("oldchildworkworderid",oldchildworkworderid)
                 rec.setValue("custbodyformulaworkorder", oldchildworkworderid)
                 // rec.save()
 
@@ -198,6 +220,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log'],
 
         return {
             beforeSubmit: beforeSubmit,
+            beforeLoad: beforeLoad,
         };
 
 
