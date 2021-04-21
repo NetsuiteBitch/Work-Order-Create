@@ -1,5 +1,5 @@
 <transactionbodycustomfield scriptid="custbodyformulaworkorder">
-  <accesslevel>1</accesslevel>
+  <accesslevel>2</accesslevel>
   <applyformatting>F</applyformatting>
   <bodyassemblybuild>T</bodyassemblybuild>
   <bodybom>F</bodybom>
@@ -50,7 +50,7 @@
   <parentsubtab></parentsubtab>
   <searchcomparefield></searchcomparefield>
   <searchdefault></searchdefault>
-  <searchlevel>1</searchlevel>
+  <searchlevel>2</searchlevel>
   <selectrecordtype>-30</selectrecordtype>
   <showhierarchy>F</showhierarchy>
   <showinlist>F</showinlist>

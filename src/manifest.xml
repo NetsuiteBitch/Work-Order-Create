@@ -156,9 +156,6 @@
       <object>custcol_nsts_rm_item_classification</object>
       <object>custbody_atlas_order_weight</object>
       <object>custbody1</object>
-      <object>custbody2</object>
-      <object>custbody3</object>
-      <object>custbody4</object>
       <object>custcol_serial_lot_number_picking_lis</object>
       <object>custcol_bol_qty_handling_unit</object>
       <object>custbody_sii_spcl_scheme_code_purchase</object>

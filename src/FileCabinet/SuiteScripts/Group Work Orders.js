@@ -36,6 +36,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             if (woid == ""){
                 return
             }
+            log.debug('before search',woid)
             var workorderSearchObj = search.create({
                     type: "workorder",
                 filters:
