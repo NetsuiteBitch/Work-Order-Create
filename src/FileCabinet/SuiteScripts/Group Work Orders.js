@@ -88,14 +88,12 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
          * @since 2015.2
          */
         const beforeSubmit = (scriptContext) => {
+            log.debug("heloo")
 
             var rec = scriptContext.newRecord
             var woid = rec.getValue('id')
 
-            if (woid != ""){
-                log.debug("not new item")
-                return
-            }
+
 
             var itemlinecount = rec.getLineCount({sublistId:"item"});
 
@@ -118,17 +116,28 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
                 if (itemtype == 'Assembly' && itemsource == "STOCK"){
 
+
+
                     var itemid = rec.getSublistValue({
                         sublistId: 'item',
                         fieldId: 'itemid',
                         line: i
                     });
 
-                    var qty = rec.getSublistValue({
+
+                    var displayqty = rec.getSublistValue({
                         sublistId: 'item',
                         fieldId: 'quantity',
                         line: i
                     });
+
+                    var conversionqty = rec.getSublistValue({
+                        sublistId: 'item',
+                        fieldId: 'unitconversionrate',
+                        line: i
+                    });
+
+                    qty = conversionqty * displayqty
 
                     var name = rec.getSublistValue({
                         sublistId: 'item',
@@ -139,7 +148,12 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     var woid = rec.getValue('id')
                     var wostartdate = rec.getValue('startdate')
 
-                    checkwo(itemid,qty,woid, name, wostartdate)
+                    if (woid != ""){
+                        log.debug("not new item")
+                        updatevalues(scriptContext)
+                    }else {
+                        checkwo(itemid,qty,woid, name, wostartdate)
+                    }
 
 
                 }
@@ -254,6 +268,11 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
 
+        }
+
+
+        function  updatevalues(scriptcontext){
+            log.debug("Updating values")
         }
 
         function datetoddmmyyyy(mydate) {
