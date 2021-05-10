@@ -85,7 +85,7 @@
         </field>
         <field>
           <id>[scriptid=custbodyformulaworkorder]</id>
-          <label>Formula Work Order</label>
+          <label>Child Work Order</label>
           <visible>T</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>

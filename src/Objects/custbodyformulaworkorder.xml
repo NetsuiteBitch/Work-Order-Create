@@ -41,7 +41,7 @@
   <isformula>F</isformula>
   <ismandatory>F</ismandatory>
   <isparent>F</isparent>
-  <label>Formula Work Order</label>
+  <label>Child Work Order</label>
   <linktext></linktext>
   <maxlength></maxlength>
   <maxvalue></maxvalue>

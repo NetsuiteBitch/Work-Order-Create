@@ -36,7 +36,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             if (woid == ""){
                 return
             }
-            log.debug('before search',woid)
+            // log.debug('before search',woid)
             var workorderSearchObj = search.create({
                     type: "workorder",
                 filters:
@@ -55,7 +55,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             var searchResultCount = workorderSearchObj.runPaged().count;
 
             if (searchResultCount > 0){
-                log.debug(searchResultCount)
+                // log.debug(searchResultCount)
                 var currentform = scriptContext.form
 
                 var parentsublist = currentform.addSublist({id:'custpageparentworkorders',type: serverWidget.SublistType.EDITOR,label:"Parent Work Orders"})
@@ -66,15 +66,14 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 for(var i in results){
                     var result = results[i];
                     for(var k in result.columns){
-                        log.debug("trying to add",result.getValue(result.columns[k]))
                         addtoparentwosublist(result.getValue(result.columns[k]), parentsublist, i);
                     }
                 }
             }
 
             function addtoparentwosublist(parentwoid, parentsublist, i){
-                log.debug("will add to sublist", parentwoid)
-                log.debug("typei",typeof(i))
+                // log.debug("will add to sublist", parentwoid)
+                // log.debug("typei",typeof(i))
                 parentsublist.setSublistValue({id: 'parentwoname',line: parseInt(i),value:parentwoid})
             }
         }
@@ -88,10 +87,28 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
          * @since 2015.2
          */
         const beforeSubmit = (scriptContext) => {
-            log.debug("heloo")
+            // log.debug("heloo")
 
             var rec = scriptContext.newRecord
+            var oldrec = scriptContext.oldRecord
             var woid = rec.getValue('id')
+
+            var isnewandreleased = rec.getValue("id") == '' && rec.getValue("orderstatus") == "B"
+            var oldrecisplanned;
+
+            if (oldrec == null){
+                oldrecisplanned = false;
+            }else {
+                oldrecisplanned = oldrec.getValue("orderstatus") == "A";
+            }
+            log.debug(oldrecisplanned);
+            var wasplannedandnowreleased = oldrecisplanned && (rec.getValue("orderstatus") == "B")
+
+
+            if (!isnewandreleased && !wasplannedandnowreleased){
+                return
+            }
+            log.debug("Checking wo for assemblies")
 
 
 
@@ -111,7 +128,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     line: i
                 });
 
-                log.debug(itemsource,itemtype)
+                // log.debug(itemsource,itemtype)
 
 
                 if (itemtype == 'Assembly' && itemsource == "STOCK"){
@@ -137,7 +154,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         line: i
                     });
 
-                    qty = conversionqty * displayqty
+                    var qty = conversionqty * displayqty
 
                     var name = rec.getSublistValue({
                         sublistId: 'item',
@@ -148,23 +165,21 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     var woid = rec.getValue('id')
                     var wostartdate = rec.getValue('startdate')
 
-                    if (woid != ""){
-                        log.debug("not new item")
-                        updatevalues(scriptContext)
-                    }else {
-                        checkwo(itemid,qty,woid, name, wostartdate)
-                    }
-
+                    checkwo(itemid,qty,woid, name, wostartdate)
 
                 }
 
 
             }
 
+            function updatevalues(){
+                // log.debug("Not new Item")
+            }
+
             function checkwo(itemid,qty,woid, name, wostartdate){
 
-                log.debug(itemid);
-                log.debug(datetoddmmyyyy(wostartdate));
+                // log.debug(itemid);
+                // log.debug(datetoddmmyyyy(wostartdate));
 
                 var workorderSearchObj = search.create({
                     title: "sup",
@@ -187,7 +202,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
                 var searchResultCount = workorderSearchObj.runPaged().count;
-                log.debug(searchResultCount);
+                // log.debug(searchResultCount);
                 if (searchResultCount == 1){
                     var resultset = workorderSearchObj.run();
                     var results = resultset.getRange(0, 1);
@@ -212,7 +227,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                             arr.push(result.getValue(result.columns[k]));
                         }
                     }
-                    log.debug("more than one work order", arr);
+                    // log.debug("more than one work order", arr);
 
                 }
 
@@ -220,7 +235,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             }
 
             function createworkorder(itemid,qty,woid, wostartdate){
-                log.debug("creating wo", [itemid,qty,woid]);
+                // log.debug("creating wo", [itemid,qty,woid]);
 
                 var newchildworkworder = record.create({
                         type: "workorder",
@@ -233,18 +248,38 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 newchildworkworder.setValue("location", "5");
                 // newchildworkworder.setValue("quantity", qty);
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
+                newchildworkworder.setValue("orderstatus","A")
                 var newchildworkworderid = newchildworkworder.save()
-                log.debug("newchildworkworderid",newchildworkworderid)
+                // log.debug("newchildworkworderid",newchildworkworderid)
                 record.submitFields({type: 'workorder',id: newchildworkworderid,
                     values: {quantity:qty}})
+
+                var parentwonum = rec.getValue('tranid')
+
+
+                var parentbomid = rec.getValue("billofmaterials")
+                var parentbomrec = record.load({type:"bom",id: parentbomid})
+                var parentbomtype = parentbomrec.getValue("custrecordbomtype")
+
+                if (parentbomtype == "1"){
+                    record.submitFields({type: 'workorder',id: newchildworkworderid,
+                        values: {tranid:"FM-"+parentwonum}})
+
+                } else if (parentbomtype == "3"){
+
+                    var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
+                    var spicebagsuffix = "-SB " + spicebagrec.getValue("itemid").match(/([^-]*)$/)[0];
+                    record.submitFields({type: 'workorder',id: newchildworkworderid,
+                        values: {tranid: `${parentwonum.replace("FM-","")}-${spicebagsuffix}`}})
+                }
                 rec.setValue("custbodyformulaworkorder", newchildworkworderid)
+                }
 
-                // rec.save()
 
-            }
+
 
             function updateworkorder(childwo,itemid,qty,woid){
-                log.debug("updating wo", [childwo,itemid,qty,woid])
+                // log.debug("updating wo", [childwo,itemid,qty,woid])
 
                 var oldchildworkworder = record.load({
                         type: "workorder",
@@ -260,7 +295,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 oldchildworkworder.save()
 
                 var oldchildworkworderid = oldchildworkworder.getValue('id')
-                log.debug("oldchildworkworderid",oldchildworkworderid)
+                // log.debug("oldchildworkworderid",oldchildworkworderid)
                 rec.setValue("custbodyformulaworkorder", oldchildworkworderid)
                 // rec.save()
 
@@ -268,12 +303,8 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
 
-        }
 
 
-        function  updatevalues(scriptcontext){
-            log.debug("Updating values")
-        }
 
         function datetoddmmyyyy(mydate) {
             var dd = mydate.getDate();
@@ -289,6 +320,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             return formatteddate
         }
 
+        }
 
         return {
             beforeSubmit: beforeSubmit,
