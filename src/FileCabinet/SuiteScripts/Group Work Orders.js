@@ -154,7 +154,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         line: i
                     });
 
-                    var qty = conversionqty * displayqty
+                    var qty = displayqty / conversionqty
 
                     var name = rec.getSublistValue({
                         sublistId: 'item',
@@ -265,12 +265,18 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {tranid:"FM-"+parentwonum}})
 
+                    record.submitFields({type: 'workorder',id: newchildworkworderid,
+                        values: {custbody_mfgmob_workcenter:"1886"}})
+
                 } else if (parentbomtype == "3"){
 
                     var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
-                    var spicebagsuffix = "-SB " + spicebagrec.getValue("itemid").match(/([^-]*)$/)[0];
+                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/([A-z]*)$/)[0];
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {tranid: `${parentwonum.replace("FM-","")}-${spicebagsuffix}`}})
+
+                    record.submitFields({type: 'workorder',id: newchildworkworderid,
+                        values: {custbody_mfgmob_workcenter:"2211"}})
                 }
                 rec.setValue("custbodyformulaworkorder", newchildworkworderid)
                 }
