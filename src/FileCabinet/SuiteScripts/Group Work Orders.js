@@ -263,7 +263,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
                 if (parentbomtype == "1"){
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
-                        values: {tranid:"FM-"+parentwonum}})
+                        values: {tranid:parentwonum +"-FM"}})
 
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {custbody_mfgmob_workcenter:"1886"}})
@@ -273,7 +273,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
                     var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/([A-z]*)$/)[0];
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
-                        values: {tranid: `${parentwonum.replace("FM-","")}-${spicebagsuffix}`}})
+                        values: {tranid: `${parentwonum.replace("-FM","")}-${spicebagsuffix}`}})
 
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {custbody_mfgmob_workcenter:"2211"}})
