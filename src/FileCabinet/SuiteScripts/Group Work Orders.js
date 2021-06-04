@@ -88,6 +88,13 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
          */
         const beforeSubmit = (scriptContext) => {
             // log.debug("heloo")
+            Date.prototype.GetFirstDayOfWeek = function() {
+                return (new Date(this.setDate(this.getDate() - this.getDay())));
+            }
+
+            Date.prototype.GetLastDayOfWeek = function() {
+                return (new Date(this.setDate(this.getDate() - this.getDay() +6)));
+            }
 
             var rec = scriptContext.newRecord
             var oldrec = scriptContext.oldRecord
@@ -181,6 +188,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 // log.debug(itemid);
                 // log.debug(datetoddmmyyyy(wostartdate));
 
+                var tempdate = wostartdate
                 var workorderSearchObj = search.create({
                     title: "sup",
                     type: "workorder",
@@ -188,7 +196,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         [
                             ["type","anyof","WorkOrd"],
                             "AND",
-                            ["startdate","within",datetoddmmyyyy(wostartdate),datetoddmmyyyy(wostartdate)],
+                            ["startdate","within",datetoddmmyyyy(wostartdate.GetFirstDayOfWeek()),datetoddmmyyyy(wostartdate.GetLastDayOfWeek())],
                             "AND",
                             ["mainline","is","T"],
                             "AND",
@@ -199,6 +207,8 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                             search.createColumn({name: "internalid", label: "Internal ID"})
                         ]
                 });
+
+                wostartdate = tempdate
 
 
                 var searchResultCount = workorderSearchObj.runPaged().count;
@@ -227,7 +237,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                             arr.push(result.getValue(result.columns[k]));
                         }
                     }
-                    // log.debug("more than one work order", arr);
+                    log.debug("more than one work order", arr);
 
                 }
 
@@ -249,6 +259,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 // newchildworkworder.setValue("quantity", qty);
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
                 newchildworkworder.setValue("orderstatus","A")
+                newchildworkworder.setValue("createdfrom",woid)
                 var newchildworkworderid = newchildworkworder.save()
                 // log.debug("newchildworkworderid",newchildworkworderid)
                 record.submitFields({type: 'workorder',id: newchildworkworderid,
