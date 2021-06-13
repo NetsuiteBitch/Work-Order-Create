@@ -89,11 +89,13 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
         const beforeSubmit = (scriptContext) => {
             // log.debug("heloo")
             Date.prototype.GetFirstDayOfWeek = function() {
-                return (new Date(this.setDate(this.getDate() - this.getDay())));
+                var d = new Date(this.getDate());
+                return (new Date(d.setDate(d.getDate() - d.getDay())));
             }
 
             Date.prototype.GetLastDayOfWeek = function() {
-                return (new Date(this.setDate(this.getDate() - this.getDay() +6)));
+                var d = new Date(this.getDate());
+                return (new Date(d.setDate(d.getDate() - d.getDay() +6)));
             }
 
             var rec = scriptContext.newRecord
@@ -188,7 +190,6 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 // log.debug(itemid);
                 // log.debug(datetoddmmyyyy(wostartdate));
 
-                var tempdate = wostartdate
                 var workorderSearchObj = search.create({
                     title: "sup",
                     type: "workorder",
@@ -207,8 +208,6 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                             search.createColumn({name: "internalid", label: "Internal ID"})
                         ]
                 });
-
-                wostartdate = tempdate
 
 
                 var searchResultCount = workorderSearchObj.runPaged().count;
@@ -282,7 +281,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 } else if (parentbomtype == "3"){
 
                     var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
-                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/([A-z]*)$/)[0];
+                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/[^\-]*$/)[0].trim();
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {tranid: `${parentwonum.replace("-FM","")}-${spicebagsuffix}`}})
 
