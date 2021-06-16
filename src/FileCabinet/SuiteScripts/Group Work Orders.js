@@ -190,7 +190,6 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 // log.debug(itemid);
                 // log.debug(datetoddmmyyyy(wostartdate));
 
-                var tempdate = wostartdate
                 var workorderSearchObj = search.create({
                     title: "sup",
                     type: "workorder",
@@ -210,7 +209,6 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         ]
                 });
 
-                wostartdate = tempdate
 
 
                 var searchResultCount = workorderSearchObj.runPaged().count;
@@ -221,7 +219,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     for(var i in results){
                         var result = results[i];
                         for(var k in result.columns){
-                            updateworkorder(result.getValue(result.columns[k]), itemid, qty, woid);
+                            updateworkorder(result.getValue(result.columns[k]), itemid, qty, woid, wostartdate);
                         }
                     }
 
@@ -284,7 +282,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 } else if (parentbomtype == "3"){
 
                     var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
-                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/([A-z]*)$/)[0];
+                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/[^-]*$/)[0];
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {tranid: `${parentwonum.replace("-FM","")}-${spicebagsuffix}`}})
 
@@ -297,7 +295,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
 
-            function updateworkorder(childwo,itemid,qty,woid){
+            function updateworkorder(childwo,itemid,qty,woid, oldstartdate){
                 // log.debug("updating wo", [childwo,itemid,qty,woid])
 
                 var oldchildworkworder = record.load({
@@ -310,8 +308,18 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 var oldqty = oldchildworkworder.getValue("quantity");
                 var newqty = oldqty + qty;
 
+                var olddate = new Date(oldstartdate)
+                var newdate = new Date(oldchildworkworder.getValue('startdate'))
+                var updateddate = olddate < newdate ? olddate : newdate
+
                 oldchildworkworder.setValue("quantity", newqty);
+
+                log.debug(datetoddmmyyyy(updateddate))
+
+                oldchildworkworder.setValue('startdate', updateddate)
+
                 oldchildworkworder.save()
+
 
                 var oldchildworkworderid = oldchildworkworder.getValue('id')
                 // log.debug("oldchildworkworderid",oldchildworkworderid)
