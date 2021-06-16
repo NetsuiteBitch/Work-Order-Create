@@ -89,11 +89,13 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
         const beforeSubmit = (scriptContext) => {
             // log.debug("heloo")
             Date.prototype.GetFirstDayOfWeek = function() {
-                return (new Date(this.setDate(this.getDate() - this.getDay())));
+                var d = new Date(this);
+                return (new Date(d.setDate(d.getDate() - d.getDay())));
             }
 
             Date.prototype.GetLastDayOfWeek = function() {
-                return (new Date(this.setDate(this.getDate() - this.getDay() +6)));
+                var d = new Date(this);
+                return (new Date(d.setDate(d.getDate() - d.getDay() +6)));
             }
 
             var rec = scriptContext.newRecord
