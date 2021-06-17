@@ -197,7 +197,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         [
                             ["type","anyof","WorkOrd"],
                             "AND",
-                            ["startdate","within",datetoddmmyyyy(wostartdate.GetFirstDayOfWeek()),datetoddmmyyyy(wostartdate.GetLastDayOfWeek())],
+                            ["startdate","within",datetommddyyyy(wostartdate.GetFirstDayOfWeek()),datetommddyyyy(wostartdate.GetLastDayOfWeek())],
                             "AND",
                             ["mainline","is","T"],
                             "AND",
@@ -260,6 +260,9 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
                 newchildworkworder.setValue("orderstatus","A")
                 newchildworkworder.setValue("createdfrom",woid)
+                newchildworkworder.setValue("custbody_mfgmob_wobackflush", false)
+                newchildworkworder.setValue("custbody_mfgmob_worealtime", true)
+
                 var newchildworkworderid = newchildworkworder.save()
                 // log.debug("newchildworkworderid",newchildworkworderid)
                 record.submitFields({type: 'workorder',id: newchildworkworderid,
@@ -314,7 +317,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
                 oldchildworkworder.setValue("quantity", newqty);
 
-                log.debug(datetoddmmyyyy(updateddate))
+                log.debug(datetommddyyyy(updateddate))
 
                 oldchildworkworder.setValue('startdate', updateddate)
 
@@ -324,7 +327,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 var oldchildworkworderid = oldchildworkworder.getValue('id')
                 // log.debug("oldchildworkworderid",oldchildworkworderid)
                 rec.setValue("custbodyformulaworkorder", oldchildworkworderid)
-                // rec.save()
+                // rec.save( ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING)
 
             }
 
@@ -333,7 +336,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
 
-        function datetoddmmyyyy(mydate) {
+        function datetommddyyyy(mydate) {
             var dd = mydate.getDate();
             var mm = mydate.getMonth() + 1;
             var yyyy = mydate.getFullYear();
