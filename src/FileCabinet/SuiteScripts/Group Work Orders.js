@@ -1,13 +1,14 @@
 /**
- * @NApiVersion 2.1
- * @NScriptType UserEventScript
- */
+* @NApiVersion 2.1
+* @NScriptType UserEventScript
+*/
+
 define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
     /**
- * @param{record} record
- * @param{search} search
- * @param{transaction} transaction
- */
+     * @param{record} record
+     * @param{search} search
+     * @param{transaction} transaction
+     */
     (record, search, transaction,log, serverWidget) => {
         /**
          * Defines the function definition that is executed before record is loaded.
@@ -38,7 +39,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
             }
             // log.debug('before search',woid)
             var workorderSearchObj = search.create({
-                    type: "workorder",
+                type: "workorder",
                 filters:
                     [
                         ["type","anyof","WorkOrd"],
@@ -89,12 +90,12 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
         const beforeSubmit = (scriptContext) => {
             // log.debug("heloo")
             Date.prototype.GetFirstDayOfWeek = function() {
-                var d = new Date(this.getDate());
+                var d = new Date(this);
                 return (new Date(d.setDate(d.getDate() - d.getDay())));
             }
 
             Date.prototype.GetLastDayOfWeek = function() {
-                var d = new Date(this.getDate());
+                var d = new Date(this);
                 return (new Date(d.setDate(d.getDate() - d.getDay() +6)));
             }
 
@@ -197,7 +198,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         [
                             ["type","anyof","WorkOrd"],
                             "AND",
-                            ["startdate","within",datetoddmmyyyy(wostartdate.GetFirstDayOfWeek()),datetoddmmyyyy(wostartdate.GetLastDayOfWeek())],
+                            ["startdate","within",datetommddyyyy(wostartdate.GetFirstDayOfWeek()),datetommddyyyy(wostartdate.GetLastDayOfWeek())],
                             "AND",
                             ["mainline","is","T"],
                             "AND",
@@ -210,6 +211,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 });
 
 
+
                 var searchResultCount = workorderSearchObj.runPaged().count;
                 // log.debug(searchResultCount);
                 if (searchResultCount == 1){
@@ -218,7 +220,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                     for(var i in results){
                         var result = results[i];
                         for(var k in result.columns){
-                            updateworkorder(result.getValue(result.columns[k]), itemid, qty, woid);
+                            updateworkorder(result.getValue(result.columns[k]), itemid, qty, woid, wostartdate);
                         }
                     }
 
@@ -249,7 +251,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 var newchildworkworder = record.create({
                         type: "workorder",
                         // isDynamic: true
-                }
+                    }
                 );
 
                 newchildworkworder.setValue("assemblyitem", itemid);
@@ -259,6 +261,9 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 newchildworkworder.setValue("startdate", new Date(wostartdate));
                 newchildworkworder.setValue("orderstatus","A")
                 newchildworkworder.setValue("createdfrom",woid)
+                newchildworkworder.setValue("custbody_mfgmob_wobackflush", false)
+                newchildworkworder.setValue("custbody_mfgmob_worealtime", true)
+
                 var newchildworkworderid = newchildworkworder.save()
                 // log.debug("newchildworkworderid",newchildworkworderid)
                 record.submitFields({type: 'workorder',id: newchildworkworderid,
@@ -281,7 +286,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 } else if (parentbomtype == "3"){
 
                     var spicebagrec = record.load({type:"lotnumberedassemblyitem",id: itemid})
-                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/[^\-]*$/)[0].trim();
+                    var spicebagsuffix = "SB " + spicebagrec.getValue("itemid").match(/[^-]*$/)[0];
                     record.submitFields({type: 'workorder',id: newchildworkworderid,
                         values: {tranid: `${parentwonum.replace("-FM","")}-${spicebagsuffix}`}})
 
@@ -289,12 +294,12 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                         values: {custbody_mfgmob_workcenter:"2211"}})
                 }
                 rec.setValue("custbodyformulaworkorder", newchildworkworderid)
-                }
+            }
 
 
 
 
-            function updateworkorder(childwo,itemid,qty,woid){
+            function updateworkorder(childwo,itemid,qty,woid, oldstartdate){
                 // log.debug("updating wo", [childwo,itemid,qty,woid])
 
                 var oldchildworkworder = record.load({
@@ -307,13 +312,23 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 var oldqty = oldchildworkworder.getValue("quantity");
                 var newqty = oldqty + qty;
 
+                var olddate = new Date(oldstartdate)
+                var newdate = new Date(oldchildworkworder.getValue('startdate'))
+                var updateddate = olddate < newdate ? olddate : newdate
+
                 oldchildworkworder.setValue("quantity", newqty);
+
+                log.debug(datetommddyyyy(updateddate))
+
+                oldchildworkworder.setValue('startdate', updateddate)
+
                 oldchildworkworder.save()
+
 
                 var oldchildworkworderid = oldchildworkworder.getValue('id')
                 // log.debug("oldchildworkworderid",oldchildworkworderid)
                 rec.setValue("custbodyformulaworkorder", oldchildworkworderid)
-                // rec.save()
+                // rec.save( ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING)
 
             }
 
@@ -322,19 +337,19 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
 
 
-        function datetoddmmyyyy(mydate) {
-            var dd = mydate.getDate();
-            var mm = mydate.getMonth() + 1;
-            var yyyy = mydate.getFullYear();
-            if (dd < 10) {
-                dd = "0" + dd;
+            function datetommddyyyy(mydate) {
+                var dd = mydate.getDate();
+                var mm = mydate.getMonth() + 1;
+                var yyyy = mydate.getFullYear();
+                if (dd < 10) {
+                    dd = "0" + dd;
+                }
+                if (mm < 10) {
+                    mm = "0" + mm;
+                }
+                var formatteddate = mm + "/" + dd + "/" + yyyy;
+                return formatteddate
             }
-            if (mm < 10) {
-                mm = "0" + mm;
-            }
-            var formatteddate = mm + "/" + dd + "/" + yyyy;
-            return formatteddate
-        }
 
         }
 
