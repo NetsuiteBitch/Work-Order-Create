@@ -166,6 +166,8 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
 
                     var qty = displayqty / conversionqty
 
+                    var qty = Math.ceil(qty)
+
                     var name = rec.getSublistValue({
                         sublistId: 'item',
                         fieldId: 'item_display',
@@ -267,7 +269,7 @@ define(['N/record', 'N/search', 'N/transaction','N/log','N/ui/serverWidget'],
                 var newchildworkworderid = newchildworkworder.save()
                 // log.debug("newchildworkworderid",newchildworkworderid)
                 record.submitFields({type: 'workorder',id: newchildworkworderid,
-                    values: {quantity:qty}})
+                    values: {quantity: qty}})
 
                 var parentwonum = rec.getValue('tranid')
 
